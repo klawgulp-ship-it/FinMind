@@ -21,6 +21,23 @@ export type BudgetSuggestion = {
   net_flow?: number;
 };
 
+export type WeeklySummary = {
+  period_start: string;
+  period_end: string;
+  current_week_total: number;
+  previous_week_total: number;
+  week_over_week_change_pct: number;
+  top_categories: Array<{ category_id: string; amount: number }>;
+  anomalies: Array<{
+    category_id: string;
+    current_amount: number;
+    previous_amount: number;
+    change_pct: number;
+  }>;
+  daily_breakdown: Record<string, number>;
+  tips: string[];
+};
+
 export async function getBudgetSuggestion(params?: {
   month?: string;
   geminiApiKey?: string;
@@ -31,4 +48,11 @@ export async function getBudgetSuggestion(params?: {
   if (params?.geminiApiKey) headers['X-Gemini-Api-Key'] = params.geminiApiKey;
   if (params?.persona) headers['X-Insight-Persona'] = params.persona;
   return api<BudgetSuggestion>(`/insights/budget-suggestion${monthQuery}`, { headers });
+}
+
+export async function getWeeklySummary(params?: {
+  endDate?: string;
+}): Promise<WeeklySummary> {
+  const query = params?.endDate ? `?end_date=${encodeURIComponent(params.endDate)}` : '';
+  return api<WeeklySummary>(`/insights/weekly-summary${query}`);
 }
